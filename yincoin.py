@@ -16,7 +16,6 @@ class Block:
 
         block_string = json.dumps(self.__dict__, sort_keys=True)
         value = sha256(block_string.encode()).hexdigest()
-        print(value)
         return value
 
 
@@ -62,8 +61,8 @@ class Blockchain:
     
 ########TEST########
 b = Block(index=2, transactions="2", timestamp="ahora", previous_hash="8971232nkl", nonce=0)
-print(b)
-Block.computed_hash(b)
+x = Block.computed_hash(b)
+print(x)
   
 
 
