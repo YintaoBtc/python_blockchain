@@ -58,11 +58,12 @@ class Blockchain:
 
         return computed_hash
     
-    
-    
 
-#b = Block(index=2, transactions="2", timestamp="ahora")
-#print(b)
-#computed_hash(b)   
+    
+########TEST########
+b = Block(index=2, transactions="2", timestamp="ahora", previous_hash="8971232nkl", nonce=0)
+print(b)
+Block.computed_hash(b)
+  
 
 
