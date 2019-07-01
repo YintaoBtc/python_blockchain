@@ -1,5 +1,7 @@
 from hashlib import sha256
 import json, time
+from flask import Flask, request
+import requests
 
 class Block:
     def __init__(self, index, transactions, timestamp, previous_hash, nonce):
@@ -113,4 +115,67 @@ x = Block.computed_hash(b)
 print(f"Este es el hash del Block:\n{x}")
   
 
+app =  Flask(__name__)
+ 
+# la copia del nodo del blockchain
+blockchain = Blockchain()
 
+
+#Otros nodes de la red
+peers = set()
+
+#Interfaz para unir mas nodes
+@app.route("/add_nodes", methods=["POST"])
+def register_new_peers():
+    nodes = request.get_json()
+    if not nodes:
+        return "Invalid data", 400
+
+    for node in nodes:
+        peers.add(node)
+
+    return "Success", 201
+
+#La cadena mas larga es la cadena buena
+def consensus():
+
+    global blockchain
+
+    longest_chain = None
+    current_len = len(blockchain)
+
+    for node in peers:
+        response = requests.get(f'http://{node}/chain')
+        length = response.json()["length"]
+        chain = response.json()["chain"]
+        if length > current_len and blockchain.check_chain_validity(chain):
+            current_len = length
+            longest_chain = chain
+
+        if longest_chain:
+            blockchain = longest_chain
+            return True
+        
+        return False
+
+    
+@app.route("/add_block", methods=["POST"])
+def validate_and_add_block():
+    block_data = request.get_json()
+    block = Block(block_data["index"],
+                block_data["transactions"],
+                block_data["timestamp"], 
+                block_data["previous_hash"])
+
+    proof = block_data["hash"]
+    added = blockchain.add_block(block, proof)
+
+    if not added:
+        return "Bloque descartado por el node"
+
+    return "Bloque añadido a la cadena"
+
+def announce_new_block(block):
+    for peer in peers:
+        url = "http://{}/add_block".format(peer)
+        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
