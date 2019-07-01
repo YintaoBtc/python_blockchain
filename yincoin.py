@@ -57,12 +57,60 @@ class Blockchain:
 
         return computed_hash
     
+    def add_block(self, block, proof):
+        """
+        Función que añade un bloque despues de verificarlo
+        """
+        previous_hash = self.last_block.hash
+
+        if previous_hash != block.previous_hash:
+            return False
+        
+        if not self.is_valid_proof(block, proof):
+            return False
+        
+        block.hash = proof
+        self.chain.append(block)
+        return True
+
+    def is_valid_proof(self, block, block_hash):
+        """
+        Funcion que checkea si el block_hash es valido
+        """
+        return(block_hash.startswith("0" * Blockchain.difficulty)and block_hash == block.compute_hash())
+
+
+    def add_new_transaction(self, transaction):
+        self.unconfirmed_transactions.append(transaction) 
+
+    def mine(self):
+        """
+        Funcion que busca unconfirmed transactions para minarlas en un bloque.
+        """
+
+        if not self.unconfirmed_transactions:
+            return False
+        
+        last_block = self.last_block
+
+        new_bock = Block(index=last_block.index + 1,
+                        transactions=self.unconfirmed_transactions,
+                        timestamp = time.time(),
+                        previous_hash = last_block.hash
+        )
+
+        proof = self.proof_of_work(new_bock)
+        self.add_block(new_bock, proof)
+
+        self.unconfirmed_transactions = []
+        return new_bock.index
+    
 
     
 ########TEST########
 b = Block(index=2, transactions="2", timestamp="ahora", previous_hash="8971232nkl", nonce=0)
 x = Block.computed_hash(b)
-print(x)
+print(f"Este es el hash del Block:\n{x}")
   
 
 

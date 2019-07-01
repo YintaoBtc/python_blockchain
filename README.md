@@ -1,8 +1,10 @@
 # Blockchain en python
+
 Blockchain en python desde 0. Con la ayuda del tutorial:
-https://recursospython.com/guias-y-manuales/aplicacion-blockchain-desde-cero/
+<https://recursospython.com/guias-y-manuales/aplicacion-blockchain-desde-cero/>
 
 ## Version 0.1  
+
 - Crear la class Block con:
     1. index
     2. transactions
@@ -17,6 +19,13 @@ https://recursospython.com/guias-y-manuales/aplicacion-blockchain-desde-cero/
     4. last_block
 - Añadida Proof of Work dentro de la class Blockchain
 
-## Version 0.2 TODO 
-- Añadir bloques a la cadena
-- Minado
+## Version 0.2
+
+- Se pueden añadir bloques con add_block
+    1. block
+    2. proof
+- Minado funcionando. Permite Añadir las transferencias de un pool para formar el bloque y depues hace el proof of work
+    1. add_new_transaction
+    2. new_block
+    3. proof_of_work
+    4. unconfirmed_transactions = []
