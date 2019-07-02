@@ -106,13 +106,6 @@ class Blockchain:
 
         self.unconfirmed_transactions = []
         return new_bock.index
-    
-
-    
-########TEST########
-b = Block(index=2, transactions="2", timestamp="ahora", previous_hash="8971232nkl", nonce=0)
-x = Block.computed_hash(b)
-print(f"Este es el hash del Block:\n{x}")
   
 
 app =  Flask(__name__)
@@ -120,6 +113,48 @@ app =  Flask(__name__)
 # la copia del nodo del blockchain
 blockchain = Blockchain()
 
+
+@app.route('/new_transaction', methods=['POST'])
+def new_transaction():
+    tx_data = request.get_json()
+    required_fields = ["author", "content"]
+
+    for field in required_fields:
+        if not tx_data.get(field):
+            return "Invlaid transaction data", 404
+
+    tx_data["timestamp"] = time.time()
+
+    blockchain.add_new_transaction(tx_data)
+
+    return "Success", 201
+
+@app.route("/chain", methods=["GET"])
+def get_chain():
+    chain_data = []
+    for block in blockchain.chain:
+        chain_data.append(block.__dict__)
+    
+    return json.dumps({
+        "length": len(chain_data),
+        "chain": chain_data
+    })
+
+@app.route("/mine", methods=["GET"])
+def mine_unconfirmed_transactions():
+    result = blockchain.mine()
+    if not result:
+        return "No hay transacciones para minar"
+    
+    return "Block #{result} minado correctamente."
+
+@app.route("/pending_tx")
+def get_pending_tx():
+    return json.dumps(blockchain.unconfirmed_transactions)
+
+app.run(debug=True, port=8000)
+
+blockchain.create_genesis_block()
 
 #Otros nodes de la red
 peers = set()
